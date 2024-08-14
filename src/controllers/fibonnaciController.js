@@ -1,12 +1,12 @@
-const { readDatabase, saveDatabase } = require("../database");
+const Time = require("../models/time");
 const generateFibonacciSeries = require("../utils/fibonacci");
 const sendFibonacciEmail = require("../utils/nodemailer");
 
 // Definimos la funcion para capturar todos los horarios solicitados
 const getAllFibonnaci = async (req, res) => {
   try {
-    const db = readDatabase();  // Leer la base de datos
-    res.status(200).json(db);   // Retornar la base de datos como respuesta
+    const db = await Time.find(); // Leer la base de datos
+    res.status(200).json(db); // Retornar la base de datos como respuesta
   } catch (error) {
     res.status(500).json({ error: "Error interno del servidor." });
   }
@@ -32,14 +32,9 @@ createFibbonaci = async (req, res) => {
 
     const fibonacciSeries = generateFibonacciSeries(seed1, seed2, count);
 
-    // Leer la base de datos actual
-    const db = readDatabase();
-
-    // Agregar la nueva entrada
-    db.push({ time, fibonacciSeries });
-
-    // Guardar la base de datos actualizada
-    saveDatabase(db);
+    // Crear una nueva entrada en la base de datos
+    const newTime = new Time({ time, fibonacciSeries });
+    await newTime.save(); // Guardar la nueva entrada en la base de datos
 
     // Enviar un correo a cada destinatario
     for (const email of emails) {
@@ -48,8 +43,10 @@ createFibbonaci = async (req, res) => {
 
     res.status(201).json({ fibonacciSeries });
   } catch (error) {
-    res.status(400).json({ error: `Error al crear la tarea. ${error.message}` });
+    res
+      .status(400)
+      .json({ error: `Error al crear la tarea. ${error.message}` });
   }
 };
 
-module.exports = { getAllFibonnaci, createFibbonaci};
+module.exports = { getAllFibonnaci, createFibbonaci };
