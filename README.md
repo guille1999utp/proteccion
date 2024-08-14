@@ -23,9 +23,9 @@ Este proyecto implementa una aplicación que genera una serie de Fibonacci basad
 
     ```dotenv
     PORT=4000
-    CORREO_SECRET=passphg@gmail.com
-    GOOGLE_SECRET=kufo kxns vriq gsos
-    KEY_ACCESS_TOKEN_EMAIL=NDRiMjAzZTE2OS0xNzIzNjQ2OTY4
+    CORREO_SECRET=
+    GOOGLE_SECRET=
+    KEY_ACCESS_TOKEN_EMAIL=
     ```
 
     - `PORT`: El puerto en el que la aplicación escuchará las solicitudes HTTP.
