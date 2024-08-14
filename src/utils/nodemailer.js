@@ -5,24 +5,28 @@ const ValidateEmail = require("./validateEmail");
 // Configuración de Nodemailer
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  service: "gmail", // O puedes usar otro servicio como SendGrid o Amazon SES
+  service: "gmail",
   auth: {
-    user: process.env.CORREO_SECRET, // generated ethereal user
-    pass: process.env.GOOGLE_SECRET, // generated ethereal password
+    user: process.env.CORREO_SECRET,
+    pass: process.env.GOOGLE_SECRET,
   },
+  port: 465,
+  secure: true,
   tls: {
     rejectUnauthorized: false,
   },
 });
 
-transporter
-  .verify()
-  .then(() => {
-    console.log("conectado nodemailer para correo");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// Verificación de conexión
+async function verifyTransporter() {
+  try {
+    await transporter.verify();
+    console.log("Conectado Nodemailer para correo");
+  } catch (err) {
+    console.error("Error en la verificación de transporte:", err);
+    throw new Error("No se pudo verificar el transporte de correo.");
+  }
+}
 
 // Función para enviar el correo
 async function sendFibonacciEmail(recipientEmail, time, fibonacciSeries) {
@@ -32,8 +36,8 @@ async function sendFibonacciEmail(recipientEmail, time, fibonacciSeries) {
 
   // Verificar la validez del correo electrónico usando Listenclean
   const emailValidation = await ValidateEmail(recipientEmail);
-  console.log(emailValidation);
-  if (emailValidation?.data?.status == "dirty") {
+
+  if (emailValidation?.data?.status === "dirty") {
     throw new Error(
       "La dirección de correo electrónico no es válida o no existe."
     );
@@ -49,13 +53,7 @@ async function sendFibonacciEmail(recipientEmail, time, fibonacciSeries) {
   };
 
   try {
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log("error al enviar correo", error);
-      } else {
-        console.log("correo enviado", info.response);
-      }
-    });
+    await transporter.sendMail(mailOptions);
     console.log("Correo enviado correctamente a", recipientEmail);
   } catch (error) {
     console.error("Error al enviar el correo:", error);
